@@ -13,7 +13,7 @@ if(isset($_POST['search'])){
     $search = $_POST['search'];
 }
 function deleteUser($username, $conn){
-        $query = 'CALL delete_user(?)';
+        $query = 'CALL deleteuser(?)';
         if($stmt = mysqli_prepare($conn, $query)){
             mysqli_stmt_bind_param($stmt, "s", $param_username);
             
@@ -35,18 +35,16 @@ function deleteUser($username, $conn){
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Welcome</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body{ font: 14px sans-serif; text-align: center; }
     </style>
 </head>
 <body>
-    <h1 class="my-5">Hi, <b><?php echo htmlspecialchars($_SESSION["username"]); ?></b>. Welcome to our site.</h1>
-    <h3 class="mb-5">Biography</h3>
+    <h1 class="my-5">Welcome, <b><?php echo htmlspecialchars($_SESSION["username"]); ?></b>!</h1>
     <p><?php echo $_SESSION['bio'] ?></p>
     <p class="d-flex justify-content-center">
-        <!-- <a href="ChangeBio.php" class="btn btn-primary ml-3">Change Biography</a> -->
+        <a href="update.php" class="btn btn-primary ml-3">Edit</a>
         <a href="logout.php" class="btn btn-danger ml-3">Sign Out of Your Account</a>
     </p>
     <br><br>
@@ -62,7 +60,7 @@ function deleteUser($username, $conn){
                             <button type="submit" class="btn btn-secondary" name="btnSearch" onclick="<?php isset($_POST['search']) ? $search=$_POST['search'] : $search = ''; ?>">Search</button>
                         </div>
                         <?php
-                        if ($_SESSION['username']=='mvp' and isset($_POST['search']) and $_POST['search']!='') {                        
+                        if ($_SESSION['username']=='admin' and isset($_POST['search']) and $_POST['search']!='') {                        
                             echo '<div class="col-md-1">
                                 <button class="btn btn-danger" name="btnDelete">delete</button>
                             </div>';
@@ -76,30 +74,43 @@ function deleteUser($username, $conn){
             </div>
             <div class="card-body">
                 <table class="table">
-                    <tr>
-                        <th>Username</th>
-                        <th>Bio</th>
-                    </tr>
                     <?php 
                         if(isset($_POST['btnSearch']) and $_POST['search'] != ''){
                             $query = 'SELECT username, bio FROM usuarios WHERE username = "'.$_POST['search'].'";';
                             $users = mysqli_query($db, $query);
                         }else {
                             $search = '';
-                            echo "no filtro";
+                            echo "Search a username! Remember only admin can delete users";
                             $users = mysqli_query($db,'SELECT id, username, bio FROM usuarios');
-                        }
-                        
-                        while ($registroUsuarios = mysqli_fetch_array($users, MYSQLI_ASSOC)) {
-                            echo    '<tr>
-                                        <td>'.$registroUsuarios['username'].'</td>
-                                        <td>'.$registroUsuarios['bio'].'</td>
-                                    </tr>';
                         }
                     ?>
                 </table>
             </div>
         </div>
+    </div>
+    <div id="content">
+        <?php
+            $query = "CALL registros();";
+            $dataSet = mysqli_query($db, $query);
+        ?>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Username</th>
+                        <th scope="col">Name</th>
+                    </tr>
+                </thead>
+            <tbody>    
+        <?php
+            while($row = mysqli_fetch_assoc($dataSet)){
+                echo "<tr>";
+                    echo "<td>".$row['username']."</td>";
+                    echo "<td>".$row['name']."</td>";
+                echo "</tr>";
+            }
+        ?>
+            </tbody>
+            </table>
     </div>
 </body>
 </html>

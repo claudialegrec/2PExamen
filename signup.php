@@ -10,13 +10,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if(empty(trim($_POST["username"]))){
         $username_err = "Please enter a username.";
-    } elseif(!preg_match('/^[a-zA-Z0-9_]+$/', trim($_POST["username"]))) {
+    } elseif(!preg_match('/^[a-zA-Z0-9_]+$/', trim($_POST["username"]))){
         $username_err = "Username can only contain letters, numbers, and underscores.";
-    } else {
+    } else{
 
-        $sql = "CALL validate_existence(?)";
+        $sql = "CALL validateuser(?)";
         
-        if ($stmt = mysqli_prepare($db, $sql)) {
+        if($stmt = mysqli_prepare($db, $sql)){
 
             mysqli_stmt_bind_param($stmt, "s", $param_username);
             
@@ -63,7 +63,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty($username_err) && empty($password_err) && empty($confirm_password_err)){
         
         // Prepare an insert statement
-        $sql = "CALL register(?, ?, ?)";
+        $sql = "CALL signup(?, ?, ?)";
 
         if($stmt = mysqli_prepare($db, $sql)){
             // Bind variables to the prepared statement as parameters
@@ -75,7 +75,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $param_encryption_key = $encryption_key;
             
             if(mysqli_stmt_execute($stmt)){
-
                 header("location: login.php");
             } else{
                 echo "Oops! Something went wrong. Please try again later.";
@@ -122,8 +121,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
             <div class="form-group">
                 <input type="submit" class="btn btn-primary" value="Submit">
+                <input type="reset" class="btn btn-secondary ml-2" value="Reset">
             </div>
-            <p>Already have an account? <a href="login.php">Login here</a>.</p>
+            <p>Already have an account? <a href="LogIn.php">Login here</a>.</p>
         </form>
     </div>    
 </body>
